@@ -1,5 +1,7 @@
 import React from 'react';
-import { StyleSheet, ScrollView, View, Text, Pressable } from 'react-native';
+import { StyleSheet, ScrollView } from 'react-native';
+
+import Card from "../../components/Card"
 
 interface orderList {
   table: string
@@ -22,27 +24,8 @@ export function Home() {
     }
   ]
 
-  const statusHandling: Function = (status: number) => {
-    let statusColor: string
+  const openOrder: Function = () => {
 
-    switch(status) {
-    case 100:
-      statusColor = "#00ff7f"
-      break;
-    case 102:
-      statusColor = "#ffd700"
-      break;
-    case 999:
-      statusColor = "#dc143c"
-      break;
-    }
-
-    return <View style={{
-      width: "50%",
-      height: "50%",
-      borderRadius: 50,
-      backgroundColor: statusColor,
-    }}/>
   }
 
   return (
@@ -53,13 +36,7 @@ export function Home() {
         }
 
         return(
-          <Pressable style={styles.card}>
-            <View style={styles.cardSection}>
-              {statusHandling(order.status)}
-            </View>
-            <View style={styles.cardSectionLarge}><Text>Mesa: {order.table}</Text></View>
-            <View style={styles.cardSection}><Text>{order.table}</Text></View>
-          </Pressable>
+          <Card onPress={()=>{}} order={order}/>
         )
       })}
     </ScrollView>
@@ -73,22 +50,4 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
   },
-  card: {
-    flexDirection: "row",
-    backgroundColor: "#fff",
-    width: "100%",
-    height: 80,
-    marginBottom: 20,
-    borderRadius: 5,
-  },
-  cardSection: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  cardSectionLarge: {
-    flex: 2,
-    justifyContent: "center",
-    alignItems: "center",
-  }
 })
