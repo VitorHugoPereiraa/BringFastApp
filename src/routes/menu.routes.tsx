@@ -1,9 +1,10 @@
 import React, { useContext } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Home } from '../screens/Authenticated/Home';
 import { Login } from '../screens/Login';
 import { AuthContext } from '../context/AuthContext';
 import { MaterialIcons } from '@expo/vector-icons'
+import { OrderRoutes } from './order.routes';
+import { FinishedRoutes } from './finished.routes';
 
 const { Screen, Navigator } = createBottomTabNavigator();
 
@@ -16,15 +17,29 @@ export function MenuRoutes () {
 
     return (
         <Navigator
-          // screenOptions={{
-          //   headerShown: false
-          // }}
+          screenOptions={{
+            headerShown: false
+          }}
         >
           <Screen
-            name="Pedidos"
-            component={Home}
+            name="Order"
+            component={OrderRoutes}
             options={{
-              tabBarLabel: "Pedidos",
+              tabBarLabel: "Mesas",
+              tabBarIcon: ({color, size}) => (
+                <MaterialIcons
+                  name="restaurant"
+                  color={color}
+                  size={size}
+                />
+              )
+            }}
+          />
+          <Screen
+            name="Finished"
+            component={FinishedRoutes}
+            options={{
+              tabBarLabel: "Pedidos finalizados",
               tabBarIcon: ({color, size}) => (
                 <MaterialIcons
                   name="receipt"
