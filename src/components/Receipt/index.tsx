@@ -7,21 +7,27 @@ export function Receipt({children}) {
 
   return (
     <>
+      {typeof width == 'number' && <ZigzagLines
+        // position='bottom'
+        width={width}
+        color="#FAFAD2"
+        backgroundColor="#E3F2FD"
+      />}
       <View 
       onLayout={e => setWidth(e.nativeEvent.layout.width)}
       style={{
-        backgroundColor: "#fff",
+        backgroundColor: "#FAFAD2",
         width: width,
         height: 450,
       }}>
         <View style={{flex: 1,}}>
-
+          {children}
         </View>
       </View>
       {typeof width == 'number' && <ZigzagLines
         position='bottom'
         width={width}
-        color="#fff"
+        color="#FAFAD2"
         backgroundColor="#E3F2FD"
         style={{
           marginBottom: 50,

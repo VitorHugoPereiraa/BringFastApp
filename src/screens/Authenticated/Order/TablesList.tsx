@@ -43,6 +43,30 @@ export function TablesList({navigation}) {
       table: "id5",
       status: 999,
     },
+    {
+      table: "id3",
+      status: 100,
+    },
+    {
+      table: "id4",
+      status: 102,
+    },
+    {
+      table: "id5",
+      status: 999,
+    },
+    {
+      table: "id3",
+      status: 100,
+    },
+    {
+      table: "id4",
+      status: 102,
+    },
+    {
+      table: "id5",
+      status: 999,
+    },
   ]
 
   const openOrder: Function = (order) => {
