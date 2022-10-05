@@ -5,6 +5,7 @@ import { AuthContext } from '../context/AuthContext';
 import { MaterialIcons } from '@expo/vector-icons'
 import { OrderRoutes } from './order.routes';
 import { FinishedRoutes } from './finished.routes';
+import { Profile } from '../screens/Authenticated/Profile'
 
 const { Screen, Navigator } = createBottomTabNavigator();
 
@@ -43,6 +44,20 @@ export function MenuRoutes () {
               tabBarIcon: ({color, size}) => (
                 <MaterialIcons
                   name="receipt"
+                  color={color}
+                  size={size}
+                />
+              )
+            }}
+          />
+          <Screen
+            name="Profile"
+            component={Profile}
+            options={{
+              tabBarLabel: "Perfil",
+              tabBarIcon: ({color, size}) => (
+                <MaterialIcons
+                  name="person"
                   color={color}
                   size={size}
                 />

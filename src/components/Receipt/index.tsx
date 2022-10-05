@@ -18,7 +18,7 @@ export function Receipt({children}) {
       style={{
         backgroundColor: "#FAFAD2",
         width: width,
-        height: 450,
+        height: "93%",
       }}>
         <View style={{flex: 1,}}>
           {children}
