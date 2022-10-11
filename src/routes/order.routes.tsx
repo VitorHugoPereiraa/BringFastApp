@@ -8,13 +8,20 @@ const {Navigator, Screen} = createNativeStackNavigator()
 
 export function OrderRoutes() {
   return (
-    <Navigator>
+    <Navigator
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: "#2541b2",
+        },
+        headerTintColor: "#fff",
+      }}
+    >
       <Screen
         name="Mesas"
         component={TablesList}
       />
       <Screen
-        name="Novo"
+        name="Pedido"
         component={NewOrder}
       />
       <Screen

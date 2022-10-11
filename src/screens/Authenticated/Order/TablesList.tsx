@@ -72,10 +72,10 @@ export function TablesList({navigation}) {
   const openOrder: Function = (order) => {
     // const { navigation } = routes
     if(order.status == 102){
-      navigation.navigate('Info')
+      navigation.navigate('Info', {readOnly: false})
     }
     else if(order.status == 100) {
-      navigation.navigate('Novo')
+      navigation.navigate('Pedido', {order: null})
     }
   }
 

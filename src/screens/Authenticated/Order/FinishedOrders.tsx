@@ -31,8 +31,8 @@ export function FinishedOrders({navigation}) {
         },
     ]
 
-    const openOrder: Function = (order) => {
-        navigation.navigate('Info')
+    const openOrder: Function = () => {
+        navigation.navigate('Info', {readOnly: true})
     }
 
   return (

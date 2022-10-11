@@ -8,7 +8,14 @@ const {Navigator, Screen} = createNativeStackNavigator()
 
 export function FinishedRoutes() {
   return (
-    <Navigator>
+    <Navigator
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: "#2541b2",
+        },
+        headerTintColor: "#fff",
+      }}
+    >
       <Screen
         name="Pedidos"
         component={FinishedOrders}
