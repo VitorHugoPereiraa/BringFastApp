@@ -4,6 +4,7 @@ import { StyleSheet, Text, View, Pressable, TextInput, Alert } from 'react-nativ
 import { AuthContext } from '../context/AuthContext';
 
 export function Login() {
+  const [code, setCode] = useState("");
   const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
 
@@ -23,6 +24,12 @@ export function Login() {
           }}>Entrar</Text>
         </View>
         <View style={styles.inputSection}>
+          <TextInput
+            style={styles.input}
+            onChangeText={setCode}
+            value={code}
+            placeholder="CNPJ"
+          />
           <TextInput
             style={styles.input}
             onChangeText={setLogin}
@@ -63,7 +70,7 @@ const styles = StyleSheet.create({
       justifyContent: "center",
       borderRadius: 10,
       width: 300,
-      height: 220,
+      height: 240,
     },
     head: {
       flex: 0.4,

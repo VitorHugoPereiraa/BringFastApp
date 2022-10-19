@@ -51,9 +51,14 @@ export function MenuRoutes () {
             }}
           />
           <Screen
-            name="Profile"
+            name="Perfil"
             component={Profile}
             options={{
+              headerShown: true,
+              headerStyle: {
+                backgroundColor: "#2541b2",
+              },
+              headerTintColor: "#fff",
               tabBarLabel: "Perfil",
               tabBarIcon: ({color, size}) => (
                 <MaterialIcons
