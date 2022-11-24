@@ -5,6 +5,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 interface Props {
   children: React.ReactNode;
   authenticateUser: () => boolean;
+  handleLogout: () => boolean;
   isAuthenticated: boolean;
   employee: {} | EmployeeType;
 }
@@ -72,6 +73,21 @@ export const AuthProvider: React.FC<Props> = ({ children }) => {
       return false;
     }
   }
+  //desloga o usuario apagando os dados do async storage e limpando os states
+  async function handleLogout() {
+    try {
+      //limpa tudo do async storage
+      await AsyncStorage.clear();
+
+      //apagando os states
+      setIsAuthenticated(false);
+      setEmployee({});
+      return true;
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
+  }
 
   useEffect(() => {
     (async () => {
@@ -81,7 +97,7 @@ export const AuthProvider: React.FC<Props> = ({ children }) => {
   }, []);
   return (
     <AuthContext.Provider
-      value={{ isAuthenticated, authenticateUser, employee }}
+      value={{ isAuthenticated, authenticateUser, employee, handleLogout }}
     >
       {children}
     </AuthContext.Provider>

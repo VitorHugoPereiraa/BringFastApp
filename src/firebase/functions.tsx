@@ -3,6 +3,7 @@ import {
   setDoc,
   doc,
   getDocs,
+  getDoc,
   collection as firebaseCollection,
   query as queryFirebase,
   where as whereFirebase,
@@ -18,6 +19,10 @@ type saveDatatype = {
 type getDocsByCollectionType = {
   collectionName: string;
   query?: queryType;
+};
+type getDocsByIdType = {
+  collectionName: string;
+  id: string;
 };
 type queryType = {
   field: string;
@@ -42,6 +47,15 @@ export default {
     let querySnapshot = await getDocs(!!query ? queryToGet : collection);
     let docs = querySnapshot.docs.map((doc) => doc.data());
     return docs;
+  },
+  async getDocById({ collectionName, id }: getDocsByIdType) {
+    const docRef = doc(firebase.firestore, collectionName, id);
+    let docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      return docSnap.data();
+    } else {
+      console.log("No such document!");
+    }
   },
 };
 // const q = query(collection(db, "cities"), where("capital", "==", true));
