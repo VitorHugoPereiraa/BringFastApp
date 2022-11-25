@@ -87,6 +87,7 @@ export function NewOrder(props) {
       status: 1,
       observation: observation,
       place: props.route.params.table._id,
+      company: employee.company,
     };
 
     if (await functions.saveData({ docRef, payload })) {
