@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import { collection, doc } from "firebase/firestore";
+import React, { useEffect, useState, useContext } from "react";
 import {
   ScrollView,
   View,
@@ -9,6 +10,9 @@ import {
 } from "react-native";
 import { Receipt } from "../../../components/Receipt";
 import functions from "../../../firebase/functions";
+import firebase from "../../../firebase/";
+import { AuthContext } from "../../../context/AuthContext";
+import { PlacesContext } from "../../../context/PlacesContext";
 
 const lancheImagem =
   "https://veja.abril.com.br/wp-content/uploads/2020/09/Whooper.jpg";
@@ -17,6 +21,8 @@ const cocaColaImagem =
 
 export function OrderInfo({ route, navigation }) {
   const { readOnly, table } = route.params;
+  const { employee } = useContext(AuthContext);
+  const { setPlaces } = useContext(PlacesContext);
   const [order, setOrder] = useState<any>({});
   const [ready, setReady] = useState<boolean>(false);
   useEffect(() => {
@@ -43,6 +49,37 @@ export function OrderInfo({ route, navigation }) {
 
   const handleEditOrder: Function = () => {
     navigation.navigate("Pedido", { table: table });
+  };
+  const handleFinishOrder = async () => {
+    // Get the collection reference
+    const collectionOrdersRef = collection(firebase.firestore, "orders");
+    const collectionPlacesRef = collection(firebase.firestore, "places");
+    // Generate "locally" a new document for the given collection reference
+    const docOrderRef = doc(collectionOrdersRef, table.active_order);
+    const docPlacesRef = doc(collectionPlacesRef, table._id);
+
+    //setar o status para 0 do pedido e setar o final_date
+    await functions.updateDoc({
+      docRef: docOrderRef,
+      payload: { status: 0, final_date: new Date().toISOString() },
+    });
+    //desocupar a mesa setando o status para 1 e apagando o active_order
+    await functions.updateDoc({
+      docRef: docPlacesRef,
+      payload: { status: 1, active_order: "" },
+    });
+
+    let data = await functions.getDocsByCollection({
+      collectionName: "places",
+      query: {
+        field: "created_by",
+        operator: "==",
+        value: employee.company,
+      },
+    });
+    setPlaces(data);
+
+    navigation.goBack();
   };
 
   const toReal: Function = (value: number) => {
@@ -71,7 +108,7 @@ export function OrderInfo({ route, navigation }) {
         <View style={styles.editRow}>
           <TouchableOpacity
             style={styles.button}
-            onPress={() => handleEditOrder()}
+            onPress={() => handleFinishOrder()}
           >
             <Text style={styles.editButtonText}>Finalizar pedido</Text>
           </TouchableOpacity>
