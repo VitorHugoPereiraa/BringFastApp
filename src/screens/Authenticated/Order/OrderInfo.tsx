@@ -7,6 +7,7 @@ import {
   Text,
   Pressable,
   TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
 import { Receipt } from "../../../components/Receipt";
 import functions from "../../../firebase/functions";
@@ -123,13 +124,15 @@ export function OrderInfo({ route, navigation }) {
       ) : (
         <></>
       )}
-      {ready && (
+      {ready ? (
         <Receipt>
           <View style={styles.titleRow}>
             <Text style={styles.title}>Pedido - {order.place.id}</Text>
           </View>
           <View style={styles.rowContainer}>
-            <Text style={styles.itemText}>{order.client}</Text>
+            <Text style={styles.itemText}>
+              {order.client ? order.client : "Anônimo"}
+            </Text>
             <Text style={styles.itemText}>
               {getDayMonth(order.initial_date)} (
               {new Date(order.initial_date).toLocaleTimeString()})
@@ -149,6 +152,17 @@ export function OrderInfo({ route, navigation }) {
             <Text style={styles.title}>Valor: R${toReal(order.value)}</Text>
           </View>
         </Receipt>
+      ) : (
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100%",
+          }}
+        >
+          <ActivityIndicator size="large" color="#2541b2" />
+        </View>
       )}
     </ScrollView>
   );

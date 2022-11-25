@@ -18,13 +18,6 @@ export function Profile() {
     })();
   }, []);
 
-  //   _id: string;
-  //   company: string;
-  //   email: string;
-  //   fullName: string;
-  //   login: string;
-  //   phone: string;
-  //   photo: string;
   const logout = async () => {
     let succesfully = await handleLogout();
 
@@ -32,7 +25,7 @@ export function Profile() {
     }
   };
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: "#E3F2FD" }}>
       <View
         style={{ width: "100%", alignItems: "center", paddingVertical: 40 }}
       >
