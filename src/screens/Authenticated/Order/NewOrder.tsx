@@ -1,90 +1,106 @@
-import React from 'react';
-import { View, ScrollView, StyleSheet, Text, Pressable, Image, TextInput, Modal } from 'react-native';
-import { ListItems } from '../../../components/ListItem';
-import { AddProductModal } from '../../../components/AddProductModal';
+import React, { useEffect, useContext } from "react";
+import {
+  View,
+  ScrollView,
+  StyleSheet,
+  Text,
+  Pressable,
+  Image,
+  TextInput,
+  Modal,
+  TouchableOpacity,
+} from "react-native";
+import { ListItems } from "../../../components/ListItem";
+import { AddProductModal } from "../../../components/AddProductModal";
+import { AuthContext } from "../../../context/AuthContext";
+import { PlacesContext } from "../../../context/PlacesContext";
+import firebase from "../../../firebase/";
+import functions from "../../../firebase/functions";
+import uuid from "react-native-uuid";
+import { doc, collection } from "firebase/firestore";
+import { useNavigation } from "@react-navigation/native";
+const lancheImagem =
+  "https://veja.abril.com.br/wp-content/uploads/2020/09/Whooper.jpg";
 
-const lancheImagem = "https://veja.abril.com.br/wp-content/uploads/2020/09/Whooper.jpg";
+export function NewOrder(props) {
+  const [observation, setObservations] = React.useState("");
+  const [client, setClient] = React.useState("");
+  const [showModal, setShowModal] = React.useState(false);
+  const [orderProducts, setOrderProducts] = React.useState([]);
+  const { employee } = useContext(AuthContext);
+  const { setPlaces } = useContext(PlacesContext);
+  const navigation = useNavigation();
+  useEffect(() => {
+    (async () => {})();
+  }, []);
 
-export function NewOrder({ route }) {
-  const { order } = route.params
+  const handleSubmit = async () => {
+    // Get the collection reference
+    const collectionOrdersRef = collection(firebase.firestore, "orders");
 
-  const [observation, setObservations] = React.useState("")
-  const [client, setClient] = React.useState("")
-  const [showModal, setShowModal] = React.useState(false)
-  const [products, setProducts] = React.useState([
-    {
-      id: 1,
-      name: 'X-Tudo',
-      value: 29.99,
-      image: lancheImagem,
-    },
-    {
-      id: 2,
-      name: 'X-Tudo',
-      value: 29.99,
-      image: lancheImagem,
-    },
-    {
-      id: 3,
-      name: 'X-Tudo',
-      image: lancheImagem,
-      value: 29.99,
-    },
-    // {
-    //   id: 4,
-    //   image: lancheImagem,
-    //   name: 'X-Tudo',
-    //   value: 29.99,
-    // },
-    // {
-    //   id: 5,
-    //   name: 'X-Tudo',
-    //   value: 29.99,
-    //   image: lancheImagem,
-    // },
-    // {
-    //   id: 6,
-    //   name: 'X-Tudo',
-    //   value: 29.99,
-    //   image: lancheImagem,
-    // },
-    // {
-    //   id: 7,
-    //   name: 'X-Tudo',
-    //   image: lancheImagem,
-    //   value: 29.99,
-    // },
-    // {
-    //   id: 8,
-    //   image: lancheImagem,
-    //   name: 'X-Tudo',
-    //   value: 29.99,
-    // },
-  ])
+    // Generate "locally" a new document for the given collection reference
+    const docRef = doc(collectionOrdersRef);
 
-  React.useEffect(()=>{
-    if(order !== null) {
-      setProducts(
-        order.products
-      )
-      setClient(order.name)
-      setObservations(order.observations)
+    //Payload
+    let payload = {
+      _id: docRef.id,
+      id: uuid.v4(),
+      client: client,
+      employee: employee._id,
+      value: orderProducts.reduce(
+        (previus, current) => current.price + previus,
+        0
+      ),
+      products: orderProducts.map((prod) => prod._id),
+      initial_date: new Date().toISOString(),
+      final_date: null,
+      status: 1,
+      observation: observation,
+      place: props.route.params.table._id,
+    };
+
+    if (await functions.saveData({ docRef, payload })) {
+      //atualizar o status da mesa para ocupada
+
+      // Get the collection reference
+      const collectionPlaceRef = collection(firebase.firestore, "places");
+      // Generate "locally" a new document for the given collection reference
+      const docPlaceRef = doc(collectionPlaceRef, props.route.params.table._id);
+
+      await functions.updateDoc({
+        docRef: docPlaceRef,
+        payload: { status: 0, active_order: docRef.id },
+      });
+
+      let data = await functions.getDocsByCollection({
+        collectionName: "places",
+        query: {
+          field: "created_by",
+          operator: "==",
+          value: employee.company,
+        },
+      });
+      setPlaces(data);
+      navigation.goBack();
     }
-  },[order])
+  };
 
   return (
     <>
       <Modal
-        animationType='slide'
+        animationType="slide"
         transparent={true}
         visible={showModal}
         onRequestClose={() => setShowModal(!showModal)}
       >
-        <AddProductModal setShowModal={setShowModal} updateProductList={setProducts}/>
+        <AddProductModal
+          setShowModal={setShowModal}
+          updateProductList={setOrderProducts}
+        />
       </Modal>
       <ScrollView style={styles.main}>
         <View style={styles.row}>
-          <TextInput 
+          <TextInput
             style={styles.clientInput}
             onChangeText={setClient}
             value={client}
@@ -92,20 +108,15 @@ export function NewOrder({ route }) {
           />
         </View>
         <View style={styles.row}>
-          <Pressable 
+          <Pressable
             style={styles.addProductButton}
             onPress={() => setShowModal(!showModal)}
           >
             <Text style={styles.addProductText}>Adicionar Produto+</Text>
           </Pressable>
         </View>
-        {products.map((product)=>{
-          return (
-          <ListItems
-            product={product} 
-            setProducts={setProducts}
-          />
-          )
+        {orderProducts.map((product) => {
+          return <ListItems product={product} setProducts={setOrderProducts} />;
         })}
         <View style={styles.obsRow}>
           <TextInput
@@ -117,11 +128,12 @@ export function NewOrder({ route }) {
           />
         </View>
         <View style={styles.lastRow}>
-          <Pressable
+          <TouchableOpacity
+            onPress={handleSubmit}
             style={styles.addProductButton}
           >
             <Text style={styles.addProductText}>Confirmar</Text>
-          </Pressable>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </>
@@ -151,14 +163,14 @@ const styles = StyleSheet.create({
   addProductButton: {
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: '#2541b2',
+    backgroundColor: "#2541b2",
     width: "100%",
     height: 40,
     borderRadius: 5,
   },
   addProductText: {
     fontSize: 20,
-    color: '#fff',
+    color: "#fff",
   },
   obsRow: {
     flexDirection: "row",
@@ -181,5 +193,5 @@ const styles = StyleSheet.create({
     width: "100%",
     height: 70,
     marginBottom: 40,
-  }
-})
+  },
+});

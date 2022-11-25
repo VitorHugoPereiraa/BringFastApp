@@ -22,8 +22,10 @@
     "react": "18.0.0",
     "react-native": "0.69.6",
     "react-native-paper": "^4.12.5",
+    "react-native-uuid": "^2.0.1",
     "react-native-zigzag-lines": "^0.2.0",
-    "typescript": "^4.8.3"
+    "typescript": "^4.8.3",
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9"

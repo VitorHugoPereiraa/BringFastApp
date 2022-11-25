@@ -1,28 +1,36 @@
-import React from 'react';
-import { StyleSheet, ScrollView, View } from 'react-native';
-import { NativeStackScreenProps } from  "@react-navigation/native-stack"
+import React, { useEffect, useContext, useState } from "react";
+import { StyleSheet, ScrollView, View } from "react-native";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
-import TableButton from "../../../components/TableButton"
+import TableButton from "../../../components/TableButton";
+import functions from "../../../firebase/functions";
+import { AuthContext } from "../../../context/AuthContext";
+import { PlacesContext } from "../../../context/PlacesContext";
 
 interface orderList {
-  table: string
-  status: number
+  table: string;
+  status: number;
 }
 
-// type StackParamList = {
-//   Order: any;
-//   Mesas: any;
-//   Info: any;
-// }
+export function TablesList({ navigation }) {
+  const { employee } = useContext(AuthContext);
+  const { places, setPlaces } = useContext(PlacesContext);
 
-// type StackProps = NativeStackScreenProps<StackParamList, 'Mesas'>;
+  useEffect(() => {
+    (async () => {
+      let data = await functions.getDocsByCollection({
+        collectionName: "places",
+        query: {
+          field: "created_by",
+          operator: "==",
+          value: employee.company,
+        },
+      });
+      setPlaces(data);
+    })();
+  }, []);
 
-// type Props = {
-//   routes: StackProps;
-// }
-
-export function TablesList({navigation}) {
-  const orderList : Array<orderList> = [
+  const orderList: Array<orderList> = [
     {
       table: "id1",
       status: 999,
@@ -67,30 +75,30 @@ export function TablesList({navigation}) {
       table: "id5",
       status: 999,
     },
-  ]
+  ];
 
-  const openOrder: Function = (order) => {
-    // const { navigation } = routes
-    if(order.status == 102){
-      navigation.navigate('Info', {readOnly: false})
+  const openOrder: Function = (table) => {
+    if (table.status == 0) {
+      navigation.navigate("Info", { readOnly: false, table });
+    } else if (table.status == 1) {
+      navigation.navigate("Pedido", { table });
     }
-    else if(order.status == 100) {
-      navigation.navigate('Pedido', {order: null})
-    }
-  }
+  };
 
   return (
-    <ScrollView 
+    <ScrollView
       contentContainerStyle={styles.mainContainer}
       style={styles.main}
     >
-      {orderList.map((order)=>{
-        if(!orderList || order.status == 999){
-          return <></>
-        }
-        return(
-          <TableButton onPress={()=>{openOrder(order)}} order={order}/>
-        )
+      {places.map((order) => {
+        return (
+          <TableButton
+            onPress={() => {
+              openOrder(order);
+            }}
+            order={order}
+          />
+        );
       })}
     </ScrollView>
   );
@@ -99,7 +107,7 @@ export function TablesList({navigation}) {
 const styles = StyleSheet.create({
   main: {
     flex: 1,
-    backgroundColor: '#E3F2FD',
+    backgroundColor: "#E3F2FD",
     padding: 20,
   },
   mainContainer: {
@@ -108,5 +116,5 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     justifyContent: "space-evenly",
     paddingBottom: 20,
-  }
-})
+  },
+});

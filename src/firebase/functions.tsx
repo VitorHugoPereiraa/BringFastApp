@@ -8,12 +8,12 @@ import {
   query as queryFirebase,
   where as whereFirebase,
   WhereFilterOp,
+  updateDoc as updateDocFirebase,
 } from "firebase/firestore";
 
 //types
 type saveDatatype = {
-  collectionName: string;
-  id: string;
+  docRef: any;
   payload: any;
 };
 type getDocsByCollectionType = {
@@ -29,9 +29,16 @@ type queryType = {
   operator: WhereFilterOp;
   value: any;
 };
+
 export default {
-  async saveData({ collectionName, id, payload }: saveDatatype) {
-    await setDoc(doc(firebase.firestore, collectionName, id), payload);
+  async saveData({ payload, docRef }: saveDatatype) {
+    try {
+      await setDoc(docRef, payload);
+      return true;
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
   },
   async getDocsByCollection({
     collectionName,
@@ -55,6 +62,15 @@ export default {
       return docSnap.data();
     } else {
       console.log("No such document!");
+    }
+  },
+  async updateDoc({ payload, docRef }: saveDatatype) {
+    try {
+      await updateDocFirebase(docRef, payload);
+      return true;
+    } catch (error) {
+      console.log(error);
+      return false;
     }
   },
 };
