@@ -14,6 +14,7 @@ import { ListItems } from "../../../components/ListItem";
 import { AddProductModal } from "../../../components/AddProductModal";
 import { AuthContext } from "../../../context/AuthContext";
 import { PlacesContext } from "../../../context/PlacesContext";
+import { OrdersContext } from "../../../context/OrdersContext";
 import firebase from "../../../firebase/";
 import functions from "../../../firebase/functions";
 import uuid from "react-native-uuid";
@@ -29,9 +30,38 @@ export function NewOrder(props) {
   const [orderProducts, setOrderProducts] = React.useState([]);
   const { employee } = useContext(AuthContext);
   const { setPlaces } = useContext(PlacesContext);
+  const { order, setOrder } = useContext(OrdersContext);
   const navigation = useNavigation();
   useEffect(() => {
-    (async () => {})();
+    (async () => {
+      //se ja possuir uma ordem ativa devemos buscala e preencher os dados na tela
+      if (props.route.params.table.active_order) {
+        //buscar a ordem baseada no active_order da mesa
+        let orderFirebase = await functions.getDocById({
+          collectionName: "orders",
+          id: props.route.params.table.active_order,
+        });
+        //buscar os produtos da order pelo _id
+        let prods = [];
+        for (let prodId of orderFirebase.products) {
+          let data = await functions.getDocById({
+            collectionName: "product",
+            id: prodId,
+          });
+          data.id = uuid.v4();
+          prods.push(data);
+        }
+        setOrder({
+          ...orderFirebase,
+          products: prods,
+          place: props.route.params.table,
+        });
+        setClient(orderFirebase.client);
+        setOrderProducts(prods);
+        setObservations(orderFirebase.observation);
+        console.log(prods.map((i) => i.id));
+      }
+    })();
   }, []);
 
   const handleSubmit = async () => {
@@ -84,6 +114,54 @@ export function NewOrder(props) {
       navigation.goBack();
     }
   };
+  const handleUpdateOrder = async () => {
+    // Get the collection reference
+    const collectionOrdersRef = collection(firebase.firestore, "orders");
+
+    // Generate "locally" a new document for the given collection reference
+    const docRef = doc(
+      collectionOrdersRef,
+      props.route.params.table.active_order
+    );
+    //Payload
+    let payload = {
+      client: client,
+      employee: employee._id,
+      id: uuid.v4(),
+      value: orderProducts.reduce(
+        (previus, current) => current.price + previus,
+        0
+      ),
+      products: orderProducts.map((prod) => prod._id),
+      status: 1,
+      observation: observation,
+    };
+    console.log(payload);
+
+    if (await functions.updateDoc({ docRef, payload })) {
+      //buscar a ordem baseada no active_order da mesa
+      let orderFirebase = await functions.getDocById({
+        collectionName: "orders",
+        id: props.route.params.table.active_order,
+      });
+      //buscar os produtos da order pelo _id
+      let prods = [];
+      for (let prodId of orderFirebase.products) {
+        let data = await functions.getDocById({
+          collectionName: "product",
+          id: prodId,
+        });
+        prods.push(data);
+      }
+      console.log(orderFirebase);
+      setOrder({
+        ...orderFirebase,
+        products: prods,
+        place: props.route.params.table,
+      });
+      navigation.goBack();
+    }
+  };
 
   return (
     <>
@@ -129,7 +207,11 @@ export function NewOrder(props) {
         </View>
         <View style={styles.lastRow}>
           <TouchableOpacity
-            onPress={handleSubmit}
+            onPress={
+              props.route.params.table.active_order
+                ? handleUpdateOrder
+                : handleSubmit
+            }
             style={styles.addProductButton}
           >
             <Text style={styles.addProductText}>Confirmar</Text>

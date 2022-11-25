@@ -13,6 +13,7 @@ import functions from "../../../firebase/functions";
 import firebase from "../../../firebase/";
 import { AuthContext } from "../../../context/AuthContext";
 import { PlacesContext } from "../../../context/PlacesContext";
+import { OrdersContext } from "../../../context/OrdersContext";
 
 const lancheImagem =
   "https://veja.abril.com.br/wp-content/uploads/2020/09/Whooper.jpg";
@@ -23,7 +24,7 @@ export function OrderInfo({ route, navigation }) {
   const { readOnly, table } = route.params;
   const { employee } = useContext(AuthContext);
   const { setPlaces } = useContext(PlacesContext);
-  const [order, setOrder] = useState<any>({});
+  const { order, setOrder } = useContext(OrdersContext);
   const [ready, setReady] = useState<boolean>(false);
   useEffect(() => {
     (async () => {
